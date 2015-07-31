@@ -42,7 +42,8 @@ public partial class _Default : System.Web.UI.Page
         else try {
             DateTime now = DateTime.Now;
             DateTime endDate = now;
-            DateTime startDate = new DateTime(now.Year, now.Month - AppConfig.DisplayMonths, 1);
+            DateTime startDate = DateTime.Now.AddDays(AppConfig.DisplayMonths * -30);
+            startDate = startDate.AddHours(startDate.Hour * -1);
 
             string passwd = emp.Password;
             string queryString = String.Format(AppConfig.EventQuery,
