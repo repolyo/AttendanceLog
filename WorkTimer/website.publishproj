@@ -43,11 +43,5 @@ Copyright (C) Microsoft Corporation. All rights reserved.
       <Value>$(AssemblyVersion)</Value>
     </AssemblyAttributes>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SlimeeLibrary\SlimeeLibrary.csproj">
-      <Project>{19C678F8-AE96-402A-B2BC-5CC616C4381A}</Project>
-      <Name>SlimeeLibrary</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(_WebPublishTargetsPath)\Web\Microsoft.WebSite.Publishing.targets" />
 </Project>

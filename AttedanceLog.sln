@@ -3,10 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WorkTimer(1)", "WorkTimer", "{400EA753-84A4-44A6-BFDE-A68927903D6B}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WorkTimer(1)", "WorkTimer\", "{400EA753-84A4-44A6-BFDE-A68927903D6B}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		ProjectReferences = "{19c678f8-ae96-402a-b2bc-5cc616c4381a}|SlimeeLibrary.dll;"
+		ProjectReferences = ""
 		Debug.AspNetCompiler.VirtualPath = "/localhost_52689"
 		Debug.AspNetCompiler.PhysicalPath = "WorkTimer\"
 		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_52689\"
@@ -24,11 +24,6 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "WorkTimer(1)", "WorkTimer",
 		VWDPort = "52689"
 		SlnRelativePath = "WorkTimer\"
 	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{19C678F8-AE96-402A-B2BC-5CC616C4381A} = {19C678F8-AE96-402A-B2BC-5CC616C4381A}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimeeLibrary", "SlimeeLibrary\SlimeeLibrary.csproj", "{19C678F8-AE96-402A-B2BC-5CC616C4381A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,10 +35,6 @@ Global
 		{400EA753-84A4-44A6-BFDE-A68927903D6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{400EA753-84A4-44A6-BFDE-A68927903D6B}.Release|Any CPU.ActiveCfg = Debug|Any CPU
 		{400EA753-84A4-44A6-BFDE-A68927903D6B}.Release|Any CPU.Build.0 = Debug|Any CPU
-		{19C678F8-AE96-402A-B2BC-5CC616C4381A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19C678F8-AE96-402A-B2BC-5CC616C4381A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19C678F8-AE96-402A-B2BC-5CC616C4381A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19C678F8-AE96-402A-B2BC-5CC616C4381A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
