@@ -1,0 +1,10 @@
+D:\tanch\SlimeeLibrary_Source\SlimeeLibrary\bin\Debug\SlimeeLibrary.dll
+D:\tanch\SlimeeLibrary_Source\SlimeeLibrary\bin\Debug\SlimeeLibrary.pdb
+D:\tanch\SlimeeLibrary_Source\SlimeeLibrary\obj\Debug\SlimeeLibrary.csprojResolveAssemblyReference.cache
+D:\tanch\SlimeeLibrary_Source\SlimeeLibrary\obj\Debug\SlimeeLibrary.dll
+D:\tanch\SlimeeLibrary_Source\SlimeeLibrary\obj\Debug\SlimeeLibrary.pdb
+D:\tanch\SlimeeLibrary\bin\Debug\SlimeeLibrary.dll
+D:\tanch\SlimeeLibrary\bin\Debug\SlimeeLibrary.pdb
+D:\tanch\SlimeeLibrary\obj\Debug\SlimeeLibrary.csprojResolveAssemblyReference.cache
+D:\tanch\SlimeeLibrary\obj\Debug\SlimeeLibrary.dll
+D:\tanch\SlimeeLibrary\obj\Debug\SlimeeLibrary.pdb
