@@ -19,6 +19,9 @@ public class TimeEntry : IComparable
         _to = DateTime.MinValue;
     }
 
+    public bool NoTimeIn() { return _in == DateTime.MaxValue;  }
+    public bool NoTimeOut() { return _out == DateTime.MinValue; }
+
     public bool IsNotValid()
     {
         return (_in == DateTime.MaxValue || _out == DateTime.MinValue) ? true : false;
@@ -88,22 +91,26 @@ public class TimeEntry : IComparable
     // estimated out time (9.6 hours) based.
     public string OutTimeStr
     {
-        get { return (OverTime > 1) ? OutTime.ToString(AppConfig.TimeFormat) : AppConfig.NullValue; }
+        get { return (OverTime > AppConfig.MinOverTime) ? OutTime.ToString(AppConfig.TimeFormat) : AppConfig.NullValue; }
     }
 
     public string OverTimeStr
     {
-        get { return (OverTime > 1) ? String.Format(AppConfig.ValueFormat, OverTime) : AppConfig.NullValue; }
+        get {
+            string overtime = AppConfig.NullValue;
+            if (OverTime > AppConfig.MinOverTime) {
+                overtime = OutTime.ToString(AppConfig.TimeFormat);
+                overtime += String.Format(" / " + AppConfig.ValueFormat, OverTime);
+            }
+            return overtime;
+        }
     }
 
     public double OverTime
     {
         get {
-            if (0 == _ot) {
-                _ot = Math.Max(0, _out.TimeOfDay.TotalHours - _in.TimeOfDay.TotalHours);
-                if (_ot > 0) {
-                    _ot -= AppConfig.TotalWorkHours;
-                }
+            if (0 == _ot && TimeOut > OutTime) {
+                _ot = (TimeOut - OutTime).TotalHours;
             }
             return _ot;
         }
@@ -122,8 +129,6 @@ public class TimeEntry : IComparable
         }
         return same;
     }
-
-
 
     private DateTime _in; // actual timein
     private DateTime _to; // estimated logotu

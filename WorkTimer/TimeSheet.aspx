@@ -18,10 +18,10 @@
 </head>
 <body>
     <form id="form1" runat="server">
-    <asp:Literal ID="PopupBox" runat="server"></asp:Literal>
     <asp:LoginName ID="LoginName1" Runat="server"  FormatString ="Welcome, {0}"/>
     <br />
-    <asp:LoginStatus ID="LoginStatus1" runat="server" />
+    <asp:LoginStatus ID="LoginStatus1" runat="server" 
+        onloggingout="LoginStatus1_LoggingOut" />
     <div>
     <table style="width:50%;">
         <tr>
@@ -62,16 +62,15 @@
                         HeaderStyle-Width="100" ItemStyle-HorizontalAlign="Center" />
                     <asp:BoundField HeaderText='Time Out' DataField='TimeOutStr' 
                         HeaderStyle-Width="100" ItemStyle-HorizontalAlign="Center" />
-                    <asp:BoundField HeaderText='OT Start' DataField='OutTimeStr' 
-                        HeaderStyle-Width="80" ItemStyle-HorizontalAlign="Center" />
-                    <asp:BoundField HeaderText='OT (hours)' DataField='OverTimeStr' 
-                        HeaderStyle-Width="60" ItemStyle-HorizontalAlign="Center" />
+                    <asp:BoundField HeaderText='Overtime (start/hours)' DataField='OverTimeStr' 
+                        HeaderStyle-Width="120" ItemStyle-HorizontalAlign="Center" />
                  </Columns>
             </asp:GridView>
         </tr>
     </table>
     </div>
     <div>
+        <br />
         <asp:Button ID="Import" runat="server" Text="Import" OnClick="Import_Click" />
         <br />
         <asp:Label ID="Attendance1" runat="server" Text=" - " Font-Size="Small"></asp:Label>

@@ -51,13 +51,14 @@ public class Generator : List<TimeEntry>
     /// </summary>
     public List<TimeEntry> DisplayEventAndLogInformation(EventLogReader logReader)
     {
+        TimeEntry time = null;
         DateTime now = DateTime.Now;
+        TimeEntry prev = null;
         Dictionary<string, TimeEntry> timetable = new Dictionary<string, TimeEntry>();
         for (EventRecord eventdetail = logReader.ReadEvent();
                      eventdetail != null;
                      eventdetail = logReader.ReadEvent())
         {
-            TimeEntry log = null;
             EventLogRecord logRecord = (EventLogRecord)eventdetail;
             DateTime eventTime = eventdetail.TimeCreated.Value;
             //Console.WriteLine("Description: {0}\n", eventdetail.FormatDescription());
@@ -65,18 +66,28 @@ public class Generator : List<TimeEntry>
             // access the EventLogRecord class properties            
             //Console.WriteLine("Container Event Log: {0}\n", logRecord.ContainerLog);
             String key = eventTime.ToString(AppConfig.DateFormat);
-            if (!timetable.TryGetValue(key, out log)) {
-                log = new TimeEntry();
-                timetable.Add(key, log);
+            if (!timetable.TryGetValue(key, out time))
+            {
+                time = new TimeEntry();
+                timetable.Add(key, time);
             }
 
             if (eventdetail.Id == 12) { // login time
-                log.TimeIn = eventTime;
-                // estimate time-out
-                log.TimeOut = log.OutTime;
+                time.TimeIn = eventTime;
+
+                //if (eventTime.Day == 1) {
+                //    eventTime = eventTime.AddDays(1);
+                //    key = eventTime.ToString(AppConfig.DateFormat);
+                //    if (!timetable.ContainsKey(key))
+                //    {
+                //        time = new TimeEntry(); 
+                //        time.TimeOut = eventTime.AddHours(eventTime.Hour * -1 + 1);
+                //        timetable.Add(key, time);
+                //    }
+                //}
             }
             else if (eventdetail.Id == 13) { // logout time
-                if (log.TimeOut < eventTime) log.TimeOut = eventTime;
+                if (time.TimeOut < eventTime) time.TimeOut = eventTime;
             }
         }
 
@@ -84,21 +95,50 @@ public class Generator : List<TimeEntry>
         myList.Sort(
             delegate (KeyValuePair<string, TimeEntry> firstPair,
             KeyValuePair<string, TimeEntry> nextPair) {
-                return AppConfig.isAscending() ? firstPair.Value.CompareTo(nextPair.Value) :
-                    nextPair.Value.CompareTo(firstPair.Value);
+                return firstPair.Value.CompareTo(nextPair.Value);
             }
         );
 
+        // note: logic below will only works with sorted in ascending order log entries!
         foreach (KeyValuePair<string, TimeEntry> e in myList) {
-            TimeEntry time = e.Value;
+            time = e.Value;
             // strip invalid entries
-            if (time.IsNotValid()) continue;
+            if (time.NoTimeOut()) {
+                prev = time; // entry without matching logout
+                continue;
+            }
+            if (time.NoTimeOut()) {
+            }
 
+            if (time.NoTimeIn() // entry without matching login
+                && null != prev && !prev.NoTimeIn()) // previous entry with no matching logout
+            { 
+                // candidate for logout after midnight.
+                if (time.TimeOut.TimeOfDay.TotalHours > AppConfig.LogoutTolerance) {
+                   prev = null; // outside our tolerable time after midnight logout.
+                   continue;
+                }
+                prev.TimeOut = time.TimeOut;
+                time = prev;
+            }
             // calculate logout time for today
             if (time.IsSameDay(DateTime.Today) && time.OutTime < DateTime.Now) {
-                time.TimeOut = DateTime.Now;
+                if (time.TimeOut < DateTime.Now) time.TimeOut = DateTime.Now;
             }
+            else { // estimate time-out
+                time.TimeOut = time.OutTime;
+            }
+            
             this.Add(time);
+            prev = null;
+        }
+
+        if (!AppConfig.isAscending()) {
+            myList.Sort( delegate(KeyValuePair<string, TimeEntry> firstPair,
+                KeyValuePair<string, TimeEntry> nextPair) {
+                    return nextPair.Value.CompareTo(firstPair.Value);
+                }
+            );
         }
         return this;
     }

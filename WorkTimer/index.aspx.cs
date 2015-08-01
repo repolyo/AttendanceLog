@@ -14,9 +14,6 @@ public partial class _Default : System.Web.UI.Page
         EmployeeProfile emp = (EmployeeProfile)Session["EmployeeProfile"];
         if (null == emp) {
             emp = new EmployeeProfile();
-            NameValueCollection settings = WebConfigurationManager.AppSettings;
-            emp.Name = settings["TUserName"];
-            emp.Password = settings["TPassWord"];
             emp.Domain = AppConfig.Domain;
             emp.Machine = GetIPAddress();
             Session["EmployeeProfile"] = emp;
@@ -25,6 +22,16 @@ public partial class _Default : System.Web.UI.Page
         TextBox TextBox1 = (TextBox)Login1.FindControl("Machine");
         if (null != TextBox1 && string.IsNullOrEmpty(TextBox1.Text)) TextBox1.Text = GetIPAddress();
         if (string.IsNullOrEmpty(Login1.UserName)) Login1.UserName = emp.Name;
+        if (!string.IsNullOrEmpty(AppConfig.UserName)
+            && !string.IsNullOrEmpty(AppConfig.Password))
+        {
+            Session["autologin"] = true;
+            emp.Name = AppConfig.UserName;
+            emp.Password = AppConfig.Password;
+            Session["EventLogReader"] = createEventQuery(emp);
+            FormsAuthentication.RedirectFromLoginPage(
+                String.Format("{0}@{1}", emp.Name, emp.Machine), true);
+        }
     }
 
     protected void ValidateUser(object sender, EventArgs e)
@@ -40,41 +47,7 @@ public partial class _Default : System.Web.UI.Page
             Login1.FailureText = "Username and/or password is incorrect.";
         }
         else try {
-            DateTime now = DateTime.Now;
-            DateTime endDate = now;
-            DateTime startDate = DateTime.Now.AddDays(AppConfig.DisplayMonths * -30);
-            startDate = startDate.AddHours(startDate.Hour * -1);
-
-            string passwd = emp.Password;
-            string queryString = String.Format(AppConfig.EventQuery,
-                startDate.ToUniversalTime().ToString("o"),
-                endDate.ToUniversalTime().ToString("o"));
-                
-            SecureString pw = new SecureString();
-            if (!string.IsNullOrEmpty(passwd))
-            {
-                char[] charArray = passwd.ToCharArray();
-                for (int i = 0; i < passwd.Length; i++) { pw.AppendChar(charArray[i]); }
-            }
-            pw.MakeReadOnly();
-            Session["SecureString"] = pw;
-            Session["DateTime"] = startDate;
-
-            EventLogSession session = new EventLogSession(
-                emp.Machine, // Remote Computer
-                emp.Domain, // Domain
-                emp.Name,   // Username
-                pw,
-                SessionAuthentication.Default);
-            //pw.Dispose();
-
-            // Query the Application log on the remote computer.
-            EventLogQuery query = new EventLogQuery("System", PathType.LogName, queryString);
-            query.Session = session;
-            //query.ReverseDirection = true;
-            EventLogReader logReader = new EventLogReader(query);
-            Session["EventLogReader"] = logReader;
-            Session["EventLogQuery"] = queryString;
+            Session["EventLogReader"] = createEventQuery(emp);            
             FormsAuthentication.RedirectFromLoginPage(
                 String.Format("{0}@{1}", Login1.UserName, emp.Machine), 
                 Login1.RememberMeSet);
@@ -87,6 +60,39 @@ public partial class _Default : System.Web.UI.Page
             Login1.FailureText = String.Format("{0} on {1}", 
                 err.Message, emp.Machine);
         }
+    }
+
+    private EventLogReader createEventQuery(EmployeeProfile emp)
+    {
+        DateTime now = DateTime.Now;
+        DateTime endDate = now;
+        DateTime startDate = DateTime.Today.AddDays(AppConfig.DisplayDays * -1);
+        Session["DateTime"] = startDate;
+
+        string queryString = String.Format(AppConfig.EventQuery,
+                startDate.ToUniversalTime().ToString("o"),
+                endDate.ToUniversalTime().ToString("o"));
+        EventLogQuery query = new EventLogQuery("System", PathType.LogName, queryString);
+        if (AppConfig.RemoteQuery) {
+            // Query the Application log on the remote computer.
+            SecureString pw = new SecureString();
+            string passwd = emp.Password;
+            if (!string.IsNullOrEmpty(passwd)) {
+                char[] charArray = passwd.ToCharArray();
+                for (int i = 0; i < passwd.Length; i++) { pw.AppendChar(charArray[i]); }
+            }
+            pw.MakeReadOnly();
+            query.Session = new EventLogSession(
+                emp.Machine, // Remote Computer
+                emp.Domain, // Domain
+                emp.Name,   // Username
+                pw,
+                SessionAuthentication.Default);
+            //pw.Dispose();
+            Session["SecureString"] = pw;
+        }
+        Session["EventLogQuery"] = queryString;
+        return new EventLogReader(query);
     }
 
     /// <summary>

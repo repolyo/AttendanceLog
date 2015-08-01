@@ -15,6 +15,7 @@ public partial class _Default : System.Web.UI.Page
     {
         EventLogReader logReader = (EventLogReader)Session["EventLogReader"];
         EmployeeProfile emp = (EmployeeProfile)Session["EmployeeProfile"];
+        LoginStatus1.Visible = (null == Session["autologin"]);
         if (null == emp 
             || !this.Page.User.Identity.IsAuthenticated
             || string.IsNullOrEmpty(emp.Name)) {
@@ -38,6 +39,12 @@ public partial class _Default : System.Web.UI.Page
         }
     }
 
+    protected void LoginStatus1_LoggingOut(object sender, LoginCancelEventArgs e)
+    {
+        //Session["EmployeeProfile"] = null;
+        //Session["EventLogReader"] = null;
+    }
+
     protected void DatePicker1_DateChanged(object sender, EventArgs e)
     {
         EmployeeProfile emp = (EmployeeProfile)Session["EmployeeProfile"];
@@ -47,26 +54,24 @@ public partial class _Default : System.Web.UI.Page
         DateTime endDate = now;
         DateTime startDate = dp.SelectedDate;
 
-        //MessageBox.Show(this, dp.SelectedDate.ToString());
-        
-        string passwd = emp.Password;
         string queryString = String.Format(AppConfig.EventQuery,
             startDate.ToUniversalTime().ToString("o"),
             endDate.ToUniversalTime().ToString("o"));
         
-        EventLogSession session = new EventLogSession(
-            emp.Machine, // Remote Computer
-            emp.Domain, // Domain
-            emp.Name,   // Username
-            pw,
-            SessionAuthentication.Default);
-
         // Query the Application log on the remote computer.
         EventLogQuery query = new EventLogQuery("System", PathType.LogName, queryString);
-        query.Session = session;
+        if (AppConfig.RemoteQuery) {
+            string passwd = emp.Password;
+            query.Session = new EventLogSession(
+                emp.Machine, // Remote Computer
+                emp.Domain, // Domain
+                emp.Name,   // Username
+                pw,
+                SessionAuthentication.Default);
+        }
         EventLogReader logReader = new EventLogReader(query);
         Session["EventLogQuery"] = queryString;
-
+        
         Generator testClass = new Generator(logReader);
         List<TimeEntry> table = testClass.DisplayEventAndLogInformation(logReader);
         Attendance1.Text = String.Format("Query: {0}", Session["EventLogQuery"]);
@@ -79,4 +84,5 @@ public partial class _Default : System.Web.UI.Page
         MessageBox.Show(this,
             "Not yet implemented: Intended for loading tyco exported time data. Coming soon...");
     }
+
 }
