@@ -29,11 +29,19 @@ public class TimeEntry : IComparable
 
     public int CompareTo(object obj)
     {
+        int ret = -1;
         TimeEntry other = obj as TimeEntry;
-        if (other == null) {
-            return -1;
+        if (other == null || IsNotValid() || other.IsNotValid()) {
+            return ret;
         }
-        return this.TimeIn.CompareTo(other.TimeIn);
+
+        if (NoTimeIn()) {
+            ret = this.TimeOut.CompareTo(other.NoTimeOut() ? other.TimeIn : other.TimeOut);
+        }
+        else if (NoTimeOut()) {
+            ret = this.TimeIn.CompareTo(other.NoTimeIn() ? other.TimeOut : other.TimeIn);
+        }
+        return ret;
     }
 
     public string DateStr

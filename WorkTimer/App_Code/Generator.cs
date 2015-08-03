@@ -9,6 +9,14 @@ using System.Security;
 /// </summary>
 public class Generator : List<TimeEntry>
 {
+    enum WinEvent
+    {
+        Startup = 12,
+        Shutdown = 13,
+        Logon = 7001,
+        Logoff = 7002
+    };
+
     public Generator(EventLogReader logReader)
     {
 
@@ -53,92 +61,64 @@ public class Generator : List<TimeEntry>
     {
         TimeEntry time = null;
         DateTime now = DateTime.Now;
-        TimeEntry prev = null;
         Dictionary<string, TimeEntry> timetable = new Dictionary<string, TimeEntry>();
+        
         for (EventRecord eventdetail = logReader.ReadEvent();
                      eventdetail != null;
                      eventdetail = logReader.ReadEvent())
         {
             EventLogRecord logRecord = (EventLogRecord)eventdetail;
             DateTime eventTime = eventdetail.TimeCreated.Value;
-            //Console.WriteLine("Description: {0}\n", eventdetail.FormatDescription());
-            // Cast the EventRecord object as an EventLogRecord object to 
-            // access the EventLogRecord class properties            
-            //Console.WriteLine("Container Event Log: {0}\n", logRecord.ContainerLog);
-            String key = eventTime.ToString(AppConfig.DateFormat);
-            if (!timetable.TryGetValue(key, out time))
-            {
+            WinEvent eventId = (WinEvent)eventdetail.Id;
+            string key = eventTime.ToString(AppConfig.DateFormat);
+
+            // candidate for logout after midnight.
+            if ((eventId == WinEvent.Shutdown || eventId == WinEvent.Logoff)
+                && 0.0 <= eventTime.TimeOfDay.TotalHours
+                && eventTime.TimeOfDay.TotalHours <= AppConfig.LogoutTolerance) {
+                key = eventTime.AddDays(-1).ToString(AppConfig.DateFormat);
+            }
+            
+            if (!timetable.TryGetValue(key, out time)) {
                 time = new TimeEntry();
                 timetable.Add(key, time);
             }
 
-            if (eventdetail.Id == 12) { // login time
-                time.TimeIn = eventTime;
-
-                //if (eventTime.Day == 1) {
-                //    eventTime = eventTime.AddDays(1);
-                //    key = eventTime.ToString(AppConfig.DateFormat);
-                //    if (!timetable.ContainsKey(key))
-                //    {
-                //        time = new TimeEntry(); 
-                //        time.TimeOut = eventTime.AddHours(eventTime.Hour * -1 + 1);
-                //        timetable.Add(key, time);
-                //    }
-                //}
-            }
-            else if (eventdetail.Id == 13) { // logout time
-                if (time.TimeOut < eventTime) time.TimeOut = eventTime;
+            switch (eventId) {
+                case WinEvent.Startup:
+                case WinEvent.Logon:
+                    time.TimeIn = eventTime;
+                    break;
+                case WinEvent.Logoff:
+                case WinEvent.Shutdown:
+                    if (time.TimeOut < eventTime) time.TimeOut = eventTime;
+                    break;
             }
         }
 
-        List<KeyValuePair<string, TimeEntry>> myList = timetable.ToList();
-        myList.Sort(
-            delegate (KeyValuePair<string, TimeEntry> firstPair,
-            KeyValuePair<string, TimeEntry> nextPair) {
-                return firstPair.Value.CompareTo(nextPair.Value);
-            }
-        );
-
+        
         // note: logic below will only works with sorted in ascending order log entries!
-        foreach (KeyValuePair<string, TimeEntry> e in myList) {
+        foreach (KeyValuePair<string, TimeEntry> e in timetable.ToList()) {
             time = e.Value;
-            // strip invalid entries
-            if (time.NoTimeOut()) {
-                prev = time; // entry without matching logout
-                continue;
-            }
-            if (time.NoTimeOut()) {
-            }
 
-            if (time.NoTimeIn() // entry without matching login
-                && null != prev && !prev.NoTimeIn()) // previous entry with no matching logout
-            { 
-                // candidate for logout after midnight.
-                if (time.TimeOut.TimeOfDay.TotalHours > AppConfig.LogoutTolerance) {
-                   prev = null; // outside our tolerable time after midnight logout.
-                   continue;
-                }
-                prev.TimeOut = time.TimeOut;
-                time = prev;
-            }
             // calculate logout time for today
             if (time.IsSameDay(DateTime.Today) && time.OutTime < DateTime.Now) {
                 if (time.TimeOut < DateTime.Now) time.TimeOut = DateTime.Now;
+                this.Add(time);
+                break;
             }
-            else { // estimate time-out
-                time.TimeOut = time.OutTime;
+
+            // strip invalid entries
+            if (time.IsNotValid()) {
+                continue;
             }
-            
             this.Add(time);
-            prev = null;
         }
 
         if (!AppConfig.isAscending()) {
-            myList.Sort( delegate(KeyValuePair<string, TimeEntry> firstPair,
-                KeyValuePair<string, TimeEntry> nextPair) {
-                    return nextPair.Value.CompareTo(firstPair.Value);
-                }
-            );
+            this.Sort(delegate (TimeEntry firstPair, TimeEntry nextPair) {
+                return nextPair.CompareTo(firstPair);
+            });
         }
         return this;
     }
