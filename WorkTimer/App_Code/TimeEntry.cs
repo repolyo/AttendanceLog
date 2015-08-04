@@ -128,10 +128,9 @@ public class TimeEntry : IComparable
     public bool IsSameDay(DateTime date)
     {
         bool same = false;
-        DateTime today = DateTime.Today;
-        if (today.Year == TimeIn.Year
-            && today.Month == TimeIn.Month
-            && today.Day == TimeIn.Day)
+        if (DateTime.Today.Year == TimeIn.Year
+            && DateTime.Today.Month == TimeIn.Month
+            && DateTime.Today.Day == TimeIn.Day)
         {
             same = true;
         }

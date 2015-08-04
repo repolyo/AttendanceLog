@@ -102,8 +102,11 @@ public class Generator : List<TimeEntry>
             time = e.Value;
 
             // calculate logout time for today
-            if (time.IsSameDay(DateTime.Today) && time.OutTime < DateTime.Now) {
-                if (time.TimeOut < DateTime.Now) time.TimeOut = DateTime.Now;
+            if (time.IsSameDay(DateTime.Today)) {
+                time.TimeOut = time.OutTime;
+                if (time.TimeOut < DateTime.Now) {
+                    time.TimeOut = DateTime.Now;
+                }
                 this.Add(time);
                 break;
             }
