@@ -24,11 +24,11 @@
         onloggingout="LoginStatus1_LoggingOut" />
     <div>
     <table style="width:50%;">
-        <tr>
-            <td >
-                <asp:Label ID="StartDateLabel" runat="server" AssociatedControlID="StartDate">Start Date:</asp:Label>
+        <tr >
+            <td style="width:20%;">
+                <asp:Label ID="StartDateLabel" runat="server" AssociatedControlID="StartDate" >Start Date:</asp:Label>
             </td>
-            <td>
+            <td  >
                 <cc1:DatePicker ID="StartDate" runat="server" OnSelectedDateChanged="DatePicker1_DateChanged"
                     AutoPostBack="true" Width="100px" PaneWidth="150px" EnableViewState="true">
                     <PaneTableStyle BorderColor="#707070" BorderWidth="1px" BorderStyle="Solid" />
