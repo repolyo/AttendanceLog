@@ -118,7 +118,9 @@ public class TimeEntry : IComparable
     {
         get {
             if (0 == _ot && TimeOut > OutTime) {
-                _ot = (TimeOut - OutTime).TotalHours;
+                // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
+                //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
+                _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
             }
             return _ot;
         }

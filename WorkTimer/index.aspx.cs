@@ -73,7 +73,7 @@ public partial class _Default : System.Web.UI.Page
                 startDate.ToUniversalTime().ToString("o"),
                 endDate.ToUniversalTime().ToString("o"));
         EventLogQuery query = new EventLogQuery("System", PathType.LogName, queryString);
-        if (AppConfig.RemoteQuery) {
+        if (emp.Machine.CompareTo("127.0.0.1") != 0 && AppConfig.RemoteQuery) {
             // Query the Application log on the remote computer.
             SecureString pw = new SecureString();
             string passwd = emp.Password;

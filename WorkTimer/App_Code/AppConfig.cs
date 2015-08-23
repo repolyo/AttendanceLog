@@ -25,6 +25,7 @@ public static class AppConfig
     private static string _domain = "lrdc.lexmark.ds";
     private static double _workHours = 9.6; // working time
     private static double _minOverTime = 1;
+    private static double _overTimeInterval = 0.5; // half-hour interval
     private static double _logoutTolerance = 5.0; // 5 hours after midnight
     private static double _minLogin = 6.0; // 6am
     private static double _maxLogin = 10.0; // 10am
@@ -62,6 +63,7 @@ public static class AppConfig
             _displayDays = int.Parse(settings["TDisplayDays"]);
             _workHours = double.Parse(settings["TWorkHours"]);
             _minOverTime = double.Parse(settings["TMinOvertime"]);
+            _overTimeInterval = double.Parse(settings["TOvertimeInterval"]);
             _minLogin = double.Parse(settings["TMinLoginTime"]);
             _maxLogin = double.Parse(settings["TMaxLoginTime"]);
             _logoutTolerance = double.Parse(settings["TLogoutTolerance"]);
@@ -76,6 +78,7 @@ public static class AppConfig
     public static bool RemoteQuery { get { return _remoteQuery; } }
     public static double TotalWorkHours { get { return _workHours; } }
     public static double MinOverTime { get { return _minOverTime; } }
+    public static double OverTimeInterval { get { return _overTimeInterval; } }
     public static double MinLoginTime { get { return _minLogin; } }
     public static double MaxLoginTime { get { return _maxLogin; } }
     public static double LogoutTolerance { get { return _logoutTolerance; } }
