@@ -23,7 +23,7 @@ public class Generator : List<TimeEntry>
         _totalOvertime = 0.0;
     }
 
-    public double TotalOvertime { get { return _totalOvertime; } }
+    public string TotalOvertime { get { return String.Format(AppConfig.ValueFormat, _totalOvertime); } }
 
     public List<TimeEntry> QueryRemoteComputer(string queryString, string machine, string username, string passwd)
     {
@@ -119,7 +119,7 @@ public class Generator : List<TimeEntry>
                 continue;
             }
             this.Add(time);
-            _totalOvertime += time.OverTime;
+            if (time.OverTime > 0) _totalOvertime += time.OverTime;
         }
 
         if (!AppConfig.isAscending()) {

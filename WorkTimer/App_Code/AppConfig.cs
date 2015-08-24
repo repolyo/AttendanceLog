@@ -27,6 +27,8 @@ public static class AppConfig
     private static double _minOverTime = 1;
     private static double _overTimeInterval = 0.5; // half-hour interval
     private static double _logoutTolerance = 5.0; // 5 hours after midnight
+
+    // for normal shift earliest login must be 6am if employee logs in at 5:10am, system will count it as 6am.
     private static double _minLogin = 6.0; // 6am
     private static double _maxLogin = 10.0; // 10am
     private static string _dateFormat = "yyyy/MM/dd";

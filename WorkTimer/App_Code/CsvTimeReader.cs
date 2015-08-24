@@ -17,7 +17,7 @@ public class CsvTimeReader : List<TimeEntry>
     private double _totalOvertime;
 
     public CsvTimeReader() { }
-    public double TotalOvertime { get { return _totalOvertime; } }
+    public string TotalOvertime { get { return String.Format( AppConfig.ValueFormat, _totalOvertime); } }
     public List<TimeEntry> LoadTimes(string fileName)
     {
         string[] Lines = File.ReadAllLines(fileName);
@@ -34,9 +34,9 @@ public class CsvTimeReader : List<TimeEntry>
             //Debug.WriteLine("start = " + start);
             //Debug.WriteLine("times = " + times);
             TimeEntry t = TimeEntry.parse(Fields[DATE_COL], Fields[TIME_COL]);
-            if (t.TotalWorkHours() < 1) continue;
+            //if (t.TotalWorkHours() < 1) continue;
             Add(t);
-            _totalOvertime += t.OverTime;
+            if (t.OverTime > 0) _totalOvertime += t.OverTime;
         }
 
         File.Delete(fileName);

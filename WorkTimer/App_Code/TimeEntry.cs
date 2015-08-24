@@ -11,6 +11,8 @@ using System.Web;
 /// </summary>
 public class TimeEntry : IComparable
 {
+    static TimeSpan MIN = new TimeSpan((int)AppConfig.MinLoginTime, 0, 0);
+
     public TimeEntry()
     {
         //
@@ -73,7 +75,13 @@ public class TimeEntry : IComparable
     public DateTime TimeIn
     {
         get { return _in; }
-        set { if (DateTime.MaxValue == _in || _in > value) _in = value; }
+        set {
+            if (DateTime.MaxValue == _in || _in > value) _in = value;
+            TimeSpan tod = _in.TimeOfDay;
+            if (tod < MIN) {
+                _in = _in.AddHours(MIN.TotalHours - tod.TotalHours);
+            }
+        }
     }
 
     public DateTime TimeOut
@@ -120,18 +128,14 @@ public class TimeEntry : IComparable
     // estimated out time (9.6 hours) based.
     public string OutTimeStr
     {
-        get { return (OverTime > AppConfig.MinOverTime) ? OutTime.ToString(AppConfig.TimeFormat) : AppConfig.NullValue; }
+        get { return (0 != OverTime) ? OutTime.ToString(AppConfig.TimeFormat) : AppConfig.NullValue; }
     }
 
     public string OverTimeStr
     {
         get {
             string overtime = AppConfig.NullValue;
-            double undertime = TotalWorkHours() - AppConfig.TotalWorkHours;
-            if (undertime < 0) { // display undertime value if there is?
-                overtime = String.Format(AppConfig.ValueFormat, undertime);
-            }
-            else if (OverTime > AppConfig.MinOverTime) {
+            if (OverTime != 0) {
                 overtime = OutTime.ToString(AppConfig.TimeFormat);
                 overtime += String.Format(" / " + AppConfig.ValueFormat, OverTime);
             }
@@ -142,11 +146,16 @@ public class TimeEntry : IComparable
     public double OverTime
     {
         get {
-            if (0 == _ot && TimeOut > OutTime) {
-                // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
-                //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
-                _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
-                _ot = (_ot < AppConfig.MinOverTime) ? 0.0 : _ot;
+            if (0 == _ot) {
+                if (TimeOut > OutTime) {
+                    // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
+                    //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
+                    _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
+                    _ot = (_ot < AppConfig.MinOverTime) ? 0.0 : _ot;
+                }
+                else { // undertime
+                    _ot = TotalWorkHours() - AppConfig.TotalWorkHours;
+                }
             }
             return _ot;
         }
