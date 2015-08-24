@@ -34,7 +34,7 @@ public class CsvTimeReader : List<TimeEntry>
             //Debug.WriteLine("start = " + start);
             //Debug.WriteLine("times = " + times);
             TimeEntry t = TimeEntry.parse(Fields[DATE_COL], Fields[TIME_COL]);
-            //if (t.TotalWorkHours() < 1) continue;
+            if (t.TotalWorkHours() < 1) continue;
             Add(t);
             if (t.OverTime > 0) _totalOvertime += t.OverTime;
         }

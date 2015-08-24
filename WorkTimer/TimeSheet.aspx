@@ -62,8 +62,8 @@
                         HeaderStyle-Width="100" ItemStyle-HorizontalAlign="Center" />
                     <asp:BoundField HeaderText='Time Out' DataField='TimeOutStr' 
                         HeaderStyle-Width="100" ItemStyle-HorizontalAlign="Center" />
-                    <asp:BoundField HeaderText='Overtime/Undertime (start/hours)' DataField='OverTimeStr' 
-                        HeaderStyle-Width="150" ItemStyle-HorizontalAlign="Center" />
+                    <asp:BoundField HeaderText='Overtime (start/hours)' DataField='OverTimeStr' 
+                        HeaderStyle-Width="120" ItemStyle-HorizontalAlign="Center" />
                  </Columns>
             </asp:GridView>
         </tr>

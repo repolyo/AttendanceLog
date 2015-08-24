@@ -38,6 +38,11 @@ public class TimeEntry : IComparable
         return e;
     }
 
+    public bool IsWeekEnd() {
+        return _in.DayOfWeek == DayOfWeek.Saturday
+            || _in.DayOfWeek == DayOfWeek.Sunday;
+    }
+
     public bool NoTimeIn() { return _in == DateTime.MaxValue;  }
     public bool NoTimeOut() { return _out == DateTime.MinValue; }
 
@@ -77,10 +82,6 @@ public class TimeEntry : IComparable
         get { return _in; }
         set {
             if (DateTime.MaxValue == _in || _in > value) _in = value;
-            TimeSpan tod = _in.TimeOfDay;
-            if (tod < MIN) {
-                _in = _in.AddHours(MIN.TotalHours - tod.TotalHours);
-            }
         }
     }
 
@@ -119,7 +120,11 @@ public class TimeEntry : IComparable
                 //    logout_hour = login_hour + working_hours;
                 //}
                 //TimeSpan span = TimeSpan.FromHours(logout_hour);
-                _to = _in.AddHours(AppConfig.TotalWorkHours);
+                DateTime tin = _in;
+                if (_in.TimeOfDay < MIN) {
+                    tin = _in.AddHours(MIN.TotalHours - _in.TimeOfDay.TotalHours);
+                }
+                _to = tin.AddHours(AppConfig.TotalWorkHours);
             }
             return _to;
         }
@@ -136,8 +141,8 @@ public class TimeEntry : IComparable
         get {
             string overtime = AppConfig.NullValue;
             if (OverTime != 0) {
-                overtime = OutTime.ToString(AppConfig.TimeFormat);
-                overtime += String.Format(" / " + AppConfig.ValueFormat, OverTime);
+                overtime = IsWeekEnd() ? "" : OutTime.ToString(AppConfig.TimeFormat) + " / ";
+                overtime += String.Format(AppConfig.ValueFormat, OverTime);
             }
             return overtime;
         }
@@ -147,14 +152,21 @@ public class TimeEntry : IComparable
     {
         get {
             if (0 == _ot) {
-                if (TimeOut > OutTime) {
-                    // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
-                    //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
-                    _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
-                    _ot = (_ot < AppConfig.MinOverTime) ? 0.0 : _ot;
+                if (IsWeekEnd()) {
+                    _ot = (TimeOut - TimeIn).TotalHours;
                 }
-                else { // undertime
-                    _ot = TotalWorkHours() - AppConfig.TotalWorkHours;
+                else {
+                    if (TimeOut > OutTime)
+                    {
+                        // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
+                        //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
+                        _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
+                        _ot = (_ot < AppConfig.MinOverTime) ? 0.0 : _ot;
+                    }
+                    else
+                    { // undertime
+                        _ot = (TimeOut - OutTime).TotalHours;
+                    }
                 }
             }
             return _ot;
