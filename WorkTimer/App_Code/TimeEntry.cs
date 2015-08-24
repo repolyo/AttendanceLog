@@ -146,6 +146,7 @@ public class TimeEntry : IComparable
                 // _ot = Math.Round((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval, 
                 //    MidpointRounding.ToEven) * AppConfig.OverTimeInterval;
                 _ot = (Math.Floor((TimeOut - OutTime).TotalHours / AppConfig.OverTimeInterval) * AppConfig.OverTimeInterval);
+                _ot = (_ot < AppConfig.MinOverTime) ? 0.0 : _ot;
             }
             return _ot;
         }

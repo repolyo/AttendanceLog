@@ -26,6 +26,7 @@ public partial class _Default : System.Web.UI.Page
             GridView1.DataSource = table;
             GridView1.DataBind();
             Session["EventLogReader"] = null;
+            TotalOT.Text = "Total Overtime: " + testClass.TotalOvertime;
 
             this.StartDate.Culture = System.Globalization.CultureInfo.GetCultureInfo("en-US");
             this.StartDate.SelectedDate = (DateTime)Session["DateTime"];
@@ -75,6 +76,8 @@ public partial class _Default : System.Web.UI.Page
         Attendance1.Text = String.Format("Query: {0}", Session["EventLogQuery"]);
         GridView1.DataSource = table;
         GridView1.DataBind();
+
+        TotalOT.Text = "Total Overtime: " + testClass.TotalOvertime;
     }
 
     protected void Import_Click(object sender, EventArgs e)
@@ -89,6 +92,7 @@ public partial class _Default : System.Web.UI.Page
                 GridView1.DataSource = reader.LoadTimes(filename);
                 GridView1.DataBind();
                 Attendance1.Text = "Upload status: File uploaded!";
+                TotalOT.Text = "Total Overtime: " + reader.TotalOvertime;
             }
             catch (Exception ex) {
                 Attendance1.Text = 

@@ -68,6 +68,7 @@
             </asp:GridView>
         </tr>
     </table>
+    <asp:Label ID="TotalOT" runat="server" Text="Total Overtime: " Font-Size="Small"></asp:Label>
     </div>
     <div>
         <br />

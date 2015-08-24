@@ -16,11 +16,14 @@ public class Generator : List<TimeEntry>
         Logon = 7001,
         Logoff = 7002
     };
+    private double _totalOvertime;
 
     public Generator(EventLogReader logReader)
     {
-
+        _totalOvertime = 0.0;
     }
+
+    public double TotalOvertime { get { return _totalOvertime; } }
 
     public List<TimeEntry> QueryRemoteComputer(string queryString, string machine, string username, string passwd)
     {
@@ -116,6 +119,7 @@ public class Generator : List<TimeEntry>
                 continue;
             }
             this.Add(time);
+            _totalOvertime += time.OverTime;
         }
 
         if (!AppConfig.isAscending()) {

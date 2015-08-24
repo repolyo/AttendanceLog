@@ -14,9 +14,10 @@ public class CsvTimeReader : List<TimeEntry>
     const short START_LINE = 3;
     const short DATE_COL = 0;
     const short TIME_COL = 3;
+    private double _totalOvertime;
 
     public CsvTimeReader() { }
-
+    public double TotalOvertime { get { return _totalOvertime; } }
     public List<TimeEntry> LoadTimes(string fileName)
     {
         string[] Lines = File.ReadAllLines(fileName);
@@ -35,6 +36,7 @@ public class CsvTimeReader : List<TimeEntry>
             TimeEntry t = TimeEntry.parse(Fields[DATE_COL], Fields[TIME_COL]);
             if (t.TotalWorkHours() < 1) continue;
             Add(t);
+            _totalOvertime += t.OverTime;
         }
 
         File.Delete(fileName);
