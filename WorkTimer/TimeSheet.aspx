@@ -71,6 +71,7 @@
     </div>
     <div>
         <br />
+        <asp:FileUpload id="FileUploadControl" runat="server" />
         <asp:Button ID="Import" runat="server" Text="Import..." OnClick="Import_Click" />
         <br />
         <asp:Label ID="Attendance1" runat="server" Text=" - " Font-Size="Small"></asp:Label>

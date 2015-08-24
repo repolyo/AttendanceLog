@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.Security;
 using System.Diagnostics.Eventing.Reader;
 using SlimeeLibrary;
 using System.Security;
+using System.IO;
 
 public partial class _Default : System.Web.UI.Page
 {
@@ -81,8 +79,23 @@ public partial class _Default : System.Web.UI.Page
 
     protected void Import_Click(object sender, EventArgs e)
     {
-        MessageBox.Show(this,
-            "Not yet implemented: Intended for loading tyco exported time data. Coming soon...");
+        //MessageBox.Show(this,
+        //    "Not yet implemented: Intended for loading tyco exported time data. Coming soon...");
+        if (FileUploadControl.HasFile) {
+            try {
+                string filename = Server.MapPath("~/") + Path.GetFileName(FileUploadControl.FileName);
+                FileUploadControl.SaveAs(filename);
+                CsvTimeReader reader = new CsvTimeReader();
+                List<TimeEntry> table = reader.LoadTimes(filename);
+                GridView1.DataSource = table;
+                GridView1.DataBind();
+                Attendance1.Text = "Upload status: File uploaded!";
+            }
+            catch (Exception ex) {
+                Attendance1.Text = 
+                    "Upload status: The file could not be uploaded. The following error occured: " 
+                    + ex.Message;
+            }
+        }
     }
-
 }

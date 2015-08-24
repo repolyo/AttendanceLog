@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 
 /// <summary>
@@ -19,12 +22,30 @@ public class TimeEntry : IComparable
         _to = DateTime.MinValue;
     }
 
+    public static TimeEntry parse(string date, string times) {
+        string[] timeIO = Regex.Split(times, " To ");
+        TimeEntry e = new TimeEntry();
+        string start = date + " " + timeIO[0];
+        string end = date + " " + timeIO[1];
+
+        //Debug.WriteLine("start = " + start);
+        //Debug.WriteLine("end = " + end);
+        e.TimeIn = DateTime.ParseExact(start, "MM/dd/yyyy HHmm", CultureInfo.InvariantCulture);
+        e.TimeOut = DateTime.ParseExact(end, "MM/dd/yyyy HHmm", CultureInfo.InvariantCulture);
+
+        return e;
+    }
+
     public bool NoTimeIn() { return _in == DateTime.MaxValue;  }
     public bool NoTimeOut() { return _out == DateTime.MinValue; }
 
     public bool IsNotValid()
     {
         return (_in == DateTime.MaxValue || _out == DateTime.MinValue) ? true : false;
+    }
+
+    public double TotalWorkHours() {
+        return (TimeOut - TimeIn).TotalHours;
     }
 
     public int CompareTo(object obj)
