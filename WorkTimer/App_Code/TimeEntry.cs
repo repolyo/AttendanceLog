@@ -127,7 +127,11 @@ public class TimeEntry : IComparable
     {
         get {
             string overtime = AppConfig.NullValue;
-            if (OverTime > AppConfig.MinOverTime) {
+            double undertime = TotalWorkHours() - AppConfig.TotalWorkHours;
+            if (undertime < 0) { // display undertime value if there is?
+                overtime = String.Format(AppConfig.ValueFormat, undertime);
+            }
+            else if (OverTime > AppConfig.MinOverTime) {
                 overtime = OutTime.ToString(AppConfig.TimeFormat);
                 overtime += String.Format(" / " + AppConfig.ValueFormat, OverTime);
             }

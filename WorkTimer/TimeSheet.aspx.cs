@@ -86,8 +86,7 @@ public partial class _Default : System.Web.UI.Page
                 string filename = Server.MapPath("~/") + Path.GetFileName(FileUploadControl.FileName);
                 FileUploadControl.SaveAs(filename);
                 CsvTimeReader reader = new CsvTimeReader();
-                List<TimeEntry> table = reader.LoadTimes(filename);
-                GridView1.DataSource = table;
+                GridView1.DataSource = reader.LoadTimes(filename);
                 GridView1.DataBind();
                 Attendance1.Text = "Upload status: File uploaded!";
             }
